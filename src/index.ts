@@ -48,10 +48,6 @@ export default {
     promise: {
         done: done
     },
-    array: {
-        deduplicate: dedumplicate
-    },
-    enum: {
-        toArray: eToA
-    }
+    deduplicate: dedumplicate,
+    enumToArray: eToA
 };
