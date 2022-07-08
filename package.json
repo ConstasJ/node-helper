@@ -1,6 +1,6 @@
 {
     "name": "@constasj/helper",
-    "version": "0.0.0-development",
+    "version": "1.0.0",
     "description": "A helper library for development.",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
