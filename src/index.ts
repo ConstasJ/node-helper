@@ -1,29 +1,29 @@
+declare global {
+    interface Array<T> {
+        deduplicate(): T[];
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface Promise<T> {
+        done(onFullfilled: () => unknown, onRejected: () => unknown): void;
+    }
+}
+
 (function () {
-    const proto = Promise.prototype;
-    Reflect.defineProperty(proto, 'done', {
-        value: function (onFullfilled: () => any, onRejected: () => never) {
-            this.then(onFullfilled(), onRejected()).catch(function (reason: never) {
-                setTimeout(() => {
-                    throw reason;
-                }, 0);
-            });
-        }
-    });
-    Reflect.defineProperty(proto, 'finally', {
-        value: function (callback: () => never) {
-            const P = this.constructor;
-            return this.then(
-                (value: never) => P.resolve(callback()).then(() => value),
-                (reason: never) =>
-                    P.resolve(callback()).then(() => {
-                        throw reason;
-                    })
-            );
-        }
-    });
+    Array.prototype.deduplicate = function () {
+        const set = new Set(this);
+        return Array.from(set);
+    };
+    Promise.prototype.done = function (onFullfilled: () => unknown, onRejected: () => unknown) {
+        this.then(onFullfilled, onRejected).catch(function (reason) {
+            setTimeout(() => {
+                throw reason;
+            }, 0);
+        });
+    };
 })();
 
-function promiseDone(obj: Promise<never>, onFullfilled: () => never, onRejected: () => never) {
+function done(obj: Promise<unknown>, onFullfilled: () => unknown, onRejected: () => unknown) {
     obj.then(onFullfilled, onRejected).catch(function (reason) {
         setTimeout(() => {
             throw reason;
@@ -31,17 +31,27 @@ function promiseDone(obj: Promise<never>, onFullfilled: () => never, onRejected:
     });
 }
 
-function promiseFinally(obj: Promise<never>, fn: () => never) {
-    return obj.then(
-        (value) => Promise.resolve(fn()).then(() => value),
-        (reason) =>
-            Promise.resolve(fn()).then(() => {
-                throw reason;
-            })
-    );
+function dedumplicate(arr: unknown[]) {
+    const set = new Set(arr);
+    return Array.from(set);
+}
+
+function eToA(emun: Record<string | number, unknown>): unknown[] {
+    const arr: unknown[] = [];
+    for (const key in emun) {
+        arr.push(emun[key]);
+    }
+    return arr;
 }
 
 export default {
-    promiseDone,
-    promiseFinally
+    promise: {
+        done: done
+    },
+    array: {
+        deduplicate: dedumplicate
+    },
+    enum: {
+        toArray: eToA
+    }
 };
